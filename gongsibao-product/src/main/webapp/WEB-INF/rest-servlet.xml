@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<bean id="beanNameViewResolver"
+		class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="0" />
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="1" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<bean class="com.gongsibao.common.mvc.GongsibaoHandlerExceptionResolver" />
+
+	<bean id="handlerMapping"
+		  class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="order" value="2147483647" />
+		<property name="defaultHandler">
+			<bean class="org.springframework.web.servlet.mvc.UrlFilenameViewController">
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		p:defaultEncoding="utf-8">
+	</bean>
+
+	<bean id="gongsibaoInnerUserArgumentResolver" class="com.gongsibao.mvc.resolver.GongsibaoInnerUserArgumentResolver" />
+
+	<bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+		<property name="objectMapper" ref="objectMapper"/>
+	</bean>
+
+	<bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" >
+		<property name="dateFormat">
+			<bean class="java.text.SimpleDateFormat" scope="prototype">
+				<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" index="0"/>
+			</bean>
+		</property>
+	</bean>
+
+	<bean
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="webBindingInitializer">
+			<bean class="com.gongsibao.common.mvc.GongsibaoWebBindingInitializer"/>
+		</property>
+		<property name="customArgumentResolvers">
+			<list><ref bean="gongsibaoInnerUserArgumentResolver"/></list>
+		</property>
+		<property name="messageConverters">
+			<util:list id="beanList">
+				<ref bean="stringHttpMessageConverter" />
+				<ref bean="byteArrayHttpMessageConverter" />
+				<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+					<property name="objectMapper" ref="objectMapper"/>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+
+	<bean id="stringHttpMessageConverter"
+		class="org.springframework.http.converter.StringHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<util:list>
+				<value>text/html;charset=UTF-8</value>
+				<value>text/xml;charset=UTF-8</value>
+				<value>text/plain;charset=UTF-8</value>
+				<value>application/json;charset=UTF-8</value>
+
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="byteArrayHttpMessageConverter"
+		class="org.springframework.http.converter.ByteArrayHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<util:list>
+				<value>image/jpeg</value>
+				<value>image/png</value>
+				<value>image/gif</value>
+				<value>image/bmp</value>
+				<value>image/tif</value>
+			</util:list>
+		</property>
+	</bean>
+	<context:component-scan base-package="com.gongsibao.**.controllers.**"/>
+	<mvc:annotation-driven/>
+	<mvc:default-servlet-handler/>
+</beans>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.2.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+       http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.2.xsd">
+
+    <bean id="doTime" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+                <property name="targetObject">
+                    <bean class="com.gongsibao.quartz.job.TestJob"></bean>
+                </property>
+                <property name="targetMethod">
+                    <value>execute</value>
+                </property>
+                <property name="concurrent" value="false" />
+            </bean>
+        </property>
+        <property name="cronExpression">
+            <value>0/5 * * * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 产品订单处理状态的天数程序  -->
+    <bean id="doOrderProdProcessedDays" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+                <property name="targetObject">
+                    <bean class="com.gongsibao.quartz.job.OrderProdJob"></bean>
+                </property>
+                <property name="targetMethod">
+                    <value>execute</value>
+                </property>
+                <property name="concurrent" value="false" />
+            </bean>
+        </property>
+        <property name="cronExpression">
+            <value>* * 1 * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 数据库同步  -->
+    <bean id="doDbSync" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <bean class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+                <property name="targetObject">
+                    <bean class="com.gongsibao.quartz.job.DbSyncJob"></bean>
+                </property>
+                <property name="targetMethod">
+                    <value>execute</value>
+                </property>
+                <property name="concurrent" value="false" />
+            </bean>
+        </property>
+        <property name="cronExpression">
+            <value>* 0/3 * * * ?</value>
+        </property>
+    </bean>
+
+    <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+    <bean id="startQuertz" lazy-init="false" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="doTime"/>
+                <ref bean="doOrderProdProcessedDays"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>
