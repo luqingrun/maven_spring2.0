@@ -6,7 +6,7 @@
         <version>1.0.11-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <!-- test -->
+    <!-- test test -->
     <artifactId>gongsibao-common</artifactId>
 
     <name>gongsibao-common</name>
